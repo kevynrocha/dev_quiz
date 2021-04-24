@@ -42,7 +42,6 @@ class _HomePageState extends State<HomePage> {
         children: [
           SizedBox(height: 24),
           Container(
-            //TODO REMOVER CONTAINER E ALTURA FIXA
             height: 33,
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -70,6 +69,13 @@ class _HomePageState extends State<HomePage> {
                       title: e.title,
                       percent: e.questionAnswered / e.questions.length,
                       completed: '${e.questionAnswered}/${e.questions.length}',
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          'CHALLENGE_PAGE',
+                          arguments: e.questions,
+                        );
+                      },
                     ),
                   )
                   .toList(),
