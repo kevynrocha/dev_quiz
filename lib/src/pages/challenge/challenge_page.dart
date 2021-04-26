@@ -1,10 +1,11 @@
-import 'package:dev_quiz/src/pages/challenge/challenge_controller.dart';
-import 'package:dev_quiz/src/shared/models/question_model.dart';
 import 'package:flutter/material.dart';
 
+import 'challenge_controller.dart';
 import 'widgets/next_button/next_button_widget.dart';
 import 'widgets/question_indicator/question_indicator_widget.dart';
 import 'widgets/quiz/quiz_widget.dart';
+import '../../shared/models/quiz_model.dart';
+import '../../shared/models/result_model.dart';
 
 class ChallengePage extends StatefulWidget {
   @override
@@ -25,16 +26,23 @@ class _ChallengePageState extends State<ChallengePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<QuestionModel> questions =
-        ModalRoute.of(context)!.settings.arguments as List<QuestionModel>;
+    final QuizModel quiz =
+        ModalRoute.of(context)!.settings.arguments as QuizModel;
 
     void _nextPage() {
-      if (controller.currentPage < questions.length) {
+      if ((controller.currentPage + 1) < quiz.questions.length) {
         pageController.nextPage(
           duration: Duration(milliseconds: 200),
           curve: Curves.linear,
         );
       }
+    }
+
+    void _onSelected(bool value) {
+      if (value) {
+        controller.rightAnswers++;
+      }
+      _nextPage();
     }
 
     return Scaffold(
@@ -49,7 +57,7 @@ class _ChallengePageState extends State<ChallengePage> {
                 valueListenable: controller.currentPageNotifier,
                 builder: (context, value, _) => QuestionIndicatorWidget(
                   currentPage: value + 1,
-                  length: questions.length,
+                  length: quiz.questions.length,
                 ),
               ),
             ],
@@ -61,10 +69,10 @@ class _ChallengePageState extends State<ChallengePage> {
         controller: pageController,
         physics: NeverScrollableScrollPhysics(),
         children: [
-          ...questions.map(
+          ...quiz.questions.map(
             (question) => QuizWidget(
               question: question,
-              onChange: _nextPage,
+              onSelected: _onSelected,
             ),
           ),
         ],
@@ -82,19 +90,27 @@ class _ChallengePageState extends State<ChallengePage> {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  if (value + 1 < questions.length)
+                  if (value + 1 < quiz.questions.length)
                     Expanded(
                       child: NextButtonWidget.white(
                         label: 'Pular',
                         onTap: _nextPage,
                       ),
                     ),
-                  if (value + 1 == questions.length)
+                  if (value + 1 == quiz.questions.length)
                     Expanded(
                       child: NextButtonWidget.green(
                         label: 'Confirmar',
                         onTap: () {
-                          Navigator.pushNamed(context, 'HOME');
+                          Navigator.pushNamed(
+                            context,
+                            'RESULT_PAGE',
+                            arguments: ResultModel(
+                              title: quiz.title,
+                              numberOfQuestions: quiz.questions.length,
+                              numberOfRightAnswers: controller.rightAnswers,
+                            ),
+                          );
                         },
                       ),
                     ),

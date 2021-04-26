@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                         Navigator.pushNamed(
                           context,
                           'CHALLENGE_PAGE',
-                          arguments: e.questions,
+                          arguments: e,
                         );
                       },
                     ),
